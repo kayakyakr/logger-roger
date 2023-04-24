@@ -1,0 +1,8 @@
+version: 3
+endpoint: http://localhost:8081
+admin_secret: hunter1
+metadata_directory: metadata
+actions:
+  kind: synchronous
+  handler_webhook_baseurl: http://localhost:3000
+# This file is used LOCALLY by hasura-cli. The Dockerfile does not use this, and neither does docker-compose.ynl
