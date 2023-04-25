@@ -1,3 +1,6 @@
+# TODO:
+Streaming graphql
+Fill out this readme
 # Endpoints
 
 GET / - Primary UX
@@ -16,7 +19,7 @@ an api serving graphql
 
 ### Launch Hasura
 
-- PG has to be fully up before Hasura can start. If console cannot connect, kick over hasura.
+- PG has to be fully up before Hasura can start. If console cannot connect, kick over hasura container only.
 
 ### Launch App
 
