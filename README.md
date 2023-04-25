@@ -1,5 +1,4 @@
 # TODO:
-Streaming graphql
 Dockerize
 Fill out this readme
 
@@ -28,11 +27,10 @@ Pulling handling the subscription for our streaming page.
 
 # Running the app
 
-### Launch Hasura
+### Launch Docker Composer
 
-- PG has to be fully up before Hasura can start. If console cannot connect, kick over hasura container only.
-
-### Launch App
+`npm run docker`
+`npm run init`
 
 ### Launch loggerator
 

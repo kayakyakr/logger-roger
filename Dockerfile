@@ -1,10 +1,10 @@
 # base node image
-FROM node:16-bullseye-slim as base
+FROM node:20-bullseye-slim as base
 
 # set for base and all layer that inherit from it
 ENV NODE_ENV production
 
-RUN apt-get update && apt-get install -y openssl
+RUN apt-get update && apt-get install -y openssl curl
 
 # Install all node_modules, including dev dependencies
 FROM base as deps

@@ -23,7 +23,7 @@ export function parseLog(line: string) {
 }
 
 export default function fetchLogFromLoggerator() {
-    const request = child_process.spawn("curl", ['--http0.9', '-s', 'http://localhost:8080'], { stdio: ['pipe', 'pipe', process.stderr] })
+    const request = child_process.spawn("curl", ['--http0.9', '-s', process?.env?.LOGGERATOR_URL ?? 'http://localhost:8080'], { stdio: ['pipe', 'pipe', process.stderr] })
 
     let remainder = ""
     let startTime = Date.now()
