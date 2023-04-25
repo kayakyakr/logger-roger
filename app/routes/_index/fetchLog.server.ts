@@ -6,7 +6,10 @@ const logMatcher = new RegExp(/(.+) \- (.+) \[(.+)\] "(.+) (.+) (.+)" (\d+) (\d+
 
 export function parseLog(line: string) {
     const match = logMatcher.exec(line)
-    if( !match ) return null;
+    if( !match ) {
+        console.error(`Invalid log: ${line}`)
+        return null;
+    }
     return {
         ip: match[1],
         user: match[2],
@@ -27,6 +30,8 @@ export default function fetchLogFromLoggerator() {
     let tickTime = Date.now()
     let tickCount = 0
     let count = 0
+    let finalizeTimeout = setTimeout(() => {}, 0)
+
     request.stdout.on("data", async function(data: ReadableStream) {
         const batch = data.toString()
         const logLines = batch.split('\n')
@@ -34,24 +39,24 @@ export default function fetchLogFromLoggerator() {
         if( logLines.length === 0 ) return;
 
         logLines[0] = `${remainder}${logLines[0]}`
-        if(logLines.length > 1 && !logMatcher.test(logLines.slice(-1)[0])) remainder = logLines.pop() || '';
+        if(logLines.length > 1) remainder = logLines.pop() || '';
 
         const logObjects: Array<Log | null> = logLines.map(parseLog).filter(l => l);
         
         // add logs to database
         await createLogs(logObjects as Array<Log>) // cast is because we've removed nulls, but TS doesn't understand that.
         
-        // Do some logging. This is going to be not exactly stable thanks to JS IO, but should get us close enough.
+        // Do some logging. This is going to be not guaranteed to be stable thanks to JS IO, but should get us close enough.
         count += logObjects.length
         const now = Date.now()
         if(now - tickTime > 1000) {
             const logsSec = 1000 * (count - tickCount) / (now - tickTime)
             const avgLogsSec = 1000 * count / (now - startTime)
-            process.stdout.clearLine(0)
-            process.stdout.cursorTo(0)
-            process.stdout.write(`Processed ${count} logs. ${logsSec} logs/sec. ${avgLogsSec} avg logs/sec`)
+            console.log(`Processed ${count} logs. ${logsSec} logs/sec. ${avgLogsSec} avg logs/sec`)
             tickCount = count;
             tickTime = now;
         }
+        if(finalizeTimeout) clearTimeout(finalizeTimeout)
+        finalizeTimeout = setTimeout(() => console.log(`Processed ${count} logs. ${1000 * count / (now - startTime)} avg logs/sec`), 2000)
     })
 }

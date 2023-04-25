@@ -1,3 +1,18 @@
 table:
   name: logs
   schema: public
+select_permissions:
+  - role: everyone
+    permission:
+      columns:
+        - method
+        - ip
+        - id
+        - size
+        - status
+        - path
+        - protocol
+        - user
+        - date
+      filter: {}
+      allow_aggregations: true
