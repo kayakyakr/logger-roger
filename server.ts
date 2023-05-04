@@ -1,8 +1,10 @@
+import child_process from "child_process";
 import path from "path";
 import express from "express";
 import compression from "compression";
 import morgan from "morgan";
 import { createRequestHandler } from "@remix-run/express";
+import net from "net";
 
 declare global {
   namespace NodeJS {
@@ -117,12 +119,34 @@ app.all(
 
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => {
-  // require the built app so we're ready when the first request comes in
-  require(BUILD_DIR);
-  console.log(`✅ app ready: http://localhost:${port}`);
-});
+const loggeratorUp = () => {
+  return new Promise((resolve) => {
+    const client = net.connect(8080, "localhost", () => {
+      console.log("Connected");
+      resolve(true);
+    });
+    client.on("error", (err) => {
+      console.log(err);
+      resolve(false);
+    });
+  });
+};
 
+(async () => {
+  // spawn curl to see if loggerator exists
+  while (!(await loggeratorUp())) {
+    console.log("Waiting for loggerator");
+    await new Promise((resolve) => setTimeout(() => resolve(true), 1000));
+  }
+
+  console.log("Loggerator started");
+  // if we get a response that we like launch the server
+  app.listen(port, () => {
+    // require the built app so we're ready when the first request comes in
+    require(BUILD_DIR);
+    console.log(`✅ app ready: http://localhost:${port}`);
+  });
+})();
 
 function purgeRequireCache() {
   // purge require cache on requests for "server side HMR" this won't let
