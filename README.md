@@ -1,6 +1,6 @@
 # Endpoints
 
-`GET /` - Primary UX with manual Fetch from Loggerator. Lists an upaged list of all values currently in the DB. 
+`GET /` - Primary UX with manual Fetch from Loggerator. Lists an upaged list of all values currently in the DB.
 Render time is approximately 2ms/log.
 
 `POST /` - Fetch another set of logs from loggerator. This seems to process in the range of 1-2k rows per second.
@@ -46,7 +46,7 @@ curl, loggerator, and my logging metrics.
 
 ### Visit index
 
-Loggerator load is manually triggered to provide more control over the # of records loaded. Visit 
+Loggerator load is manually triggered to provide more control over the # of records loaded. Visit
 [http://localhost:3000](http://localhost:3000) and press the button to load in records. If you call `/logs`
 at that point, the records will be present. If you refresh the index page, you'll also see a rendering of the
 log values.
@@ -66,27 +66,19 @@ This is a watcher with vitest so will rerun when updated. Implemented testing fo
 
 # Notes
 
-Loggerator returns somethingn that is read as http/0.9 by node's fetch method. This is because there is no 
-protocol header being returned in the call. For this reason, I had to user curl as a child_process and pipe
-the output into a stream. This gradually slows down over the course of the run. We wind up with an average
-speed of 2k logs/sec. Shorter runs can hit almost 20k logs/sec.
-
-If I was building a production system, I would probably explore alternatives that could read directly from
-the loggerator, batch the response, and keep going without being a bottleneck.
-
-Rendering takes about 20 seconds to build the /logs.json on near 1 million records. In use, as an api, I would
-enforce a max response size and implement paging. This is fairly straightforward with graphql limit/offset.
+Update: understanding that loggerator is a tcp server, I was able to use raw net.Socket to connect and read. Read
+speed is substantially faster.
 
 # Database
 
 Hasura provides a configurable graphql layer over Postgres. The DB has one table, logs, with the following columns:
 
-- id (pk), 
-- IP, 
-- user (hash indexed), 
-- date (btree indexed for sorting), 
-- method, 
-- path, 
-- protocol (indexed), 
-- status (aka code, indexed), 
+- id (pk),
+- IP,
+- user (hash indexed),
+- date (btree indexed for sorting),
+- method,
+- path,
+- protocol (indexed),
+- status (aka code, indexed),
 - size
